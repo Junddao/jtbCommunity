@@ -1,4 +1,4 @@
-package com.example.jtbcommunity
+package com.jtb.jtbcommunity
 
 import io.flutter.embedding.android.FlutterActivity
 

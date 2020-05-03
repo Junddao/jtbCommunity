@@ -1,26 +1,48 @@
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:jtbcommunity/data/urlInfo.dart';
 import 'package:jtbcommunity/drawer_Navigation.dart';
+import 'package:jtbcommunity/service/myadshelper.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-
-  @override
-  void initState() {
-    
-    super.initState();
-  }
+class HomePage extends StatelessWidget {
 
   WebViewController _webViewController;
-
+  
   @override
   Widget build(BuildContext context) {
+    
+    String appId = "ca-app-pub-9695790043722201~5349051219";
+    String adUnitId = "ca-app-pub-9695790043722201/4535976073";
+    FirebaseAdMob.instance.initialize(appId: appId);
+
+    MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
+      keywords: <String>['game', 'lol'],
+      contentUrl: 'https://flutter.io',
+      childDirected: false,
+      testDevices: <String>[], // Android emulators are considered test devices
+    );
+
+    InterstitialAd myInterstitial = InterstitialAd(
+      // Replace the testAdUnitId with an ad unit id from the AdMob dash.
+      // https://developers.google.com/admob/android/test-ads
+      // https://developers.google.com/admob/ios/test-ads
+      adUnitId: adUnitId,
+      targetingInfo: targetingInfo,
+      listener: (MobileAdEvent event) {
+        print("InterstitialAd event is $event");
+      },
+    );
+
+    myInterstitial
+    ..load()
+    ..show(
+      anchorType: AnchorType.bottom,
+      anchorOffset: 0.0,
+      horizontalCenterOffset: 0.0,
+    );
+
     return Scaffold(  
       appBar: AppBar(  
         // Here we take the value from the MyHomePage object that was created by  
@@ -29,12 +51,21 @@ class _HomePageState extends State<HomePage> {
       ),  
       // drawer: new Drawer(),
       drawer: InkWellDrawer(),  
-      body: selectPage(),
+      body: Column(children: [
+        
+        Expanded(
+          flex: 1,
+          child: selectPage(context),
+        ),
+        
+        // Ads.showBanner(),
+      ],)
+      
       
     );
   }
-
-  Widget selectPage(){
+  
+  Widget selectPage(BuildContext context){
     String url = Provider.of<UrlInfo>(context).url;
     Widget returnWidget;
     if(url == 'empty'){
@@ -44,11 +75,12 @@ class _HomePageState extends State<HomePage> {
       returnWidget = webPage(url);
       if(_webViewController != null){
         _webViewController.loadUrl(url);
+
       }
     }
     return returnWidget;
   }
-
+  
   Widget emptyPage(){
     return Container(
       alignment: Alignment.center,
@@ -74,9 +106,12 @@ class _HomePageState extends State<HomePage> {
           child : WebView(
             initialUrl: url,
             javascriptMode: JavascriptMode.unrestricted,
+
             onWebViewCreated: (WebViewController webViewController) {
               _webViewController = webViewController;
             },
+
+
           ),
         ),
       ),

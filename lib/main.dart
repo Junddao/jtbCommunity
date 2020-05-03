@@ -81,7 +81,7 @@ class AfterSplash extends StatelessWidget {
       ] ,
       child: MaterialApp(
         theme: new ThemeData(
-          primarySwatch: Colors.deepPurple,
+          primarySwatch: Colors.blueGrey,
           primaryColor: defaultTargetPlatform == TargetPlatform.iOS
             ? Colors.grey[50]
             : null),
